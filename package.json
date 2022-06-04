@@ -14,7 +14,8 @@
     "semicolon": false,
     "space": 2,
     "rules": {
-      "comma-dangle": ["error", "never"]
+      "comma-dangle": ["error", "never"],
+      "unicorn/prevent-abbreviations": "off"
     }
   }
 }
