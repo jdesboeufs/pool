@@ -5,6 +5,7 @@ import process from 'node:process'
 import 'dotenv/config.js'
 import {format} from 'date-fns-tz'
 import express from 'express'
+import morgan from 'morgan'
 
 import {initBus} from './lib/devices.js'
 import {getStatus} from './lib/probe.js'
@@ -67,6 +68,8 @@ async function main() {
   }, 5 * 60 * 1000)
 
   const app = express()
+
+  app.use(morgan('dev'))
 
   app.get(`${SHELLY_ACTIONS_KEY}/circulation-webhook/active`, (req, res) => {
     Circulation.updateStatus('active')
