@@ -10,11 +10,14 @@ import morgan from 'morgan'
 import {initBus} from './lib/devices.js'
 import {getStatus} from './lib/probe.js'
 import Circulation from './lib/circulation.js'
+import Temperature from './lib/temperature.js'
+import Orp from './lib/orp.js'
+import Ph from './lib/ph.js'
 
 const {SHELLY_ACTIONS_KEY} = process.env
 
-async function printStatus() {
-  const status = await getStatus()
+function printStatus() {
+  const status = getStatus()
   console.log(getFormattedStatus(status))
 }
 
@@ -61,6 +64,9 @@ function getOrpStatus(orp) {
 async function main() {
   await initBus()
   await Circulation.init()
+  await Temperature.init()
+  await Ph.init()
+  await Orp.init()
   await printStatus()
 
   setInterval(async () => {
