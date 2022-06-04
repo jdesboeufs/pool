@@ -71,12 +71,12 @@ async function main() {
 
   app.use(morgan('dev'))
 
-  app.get(`${SHELLY_ACTIONS_KEY}/circulation-webhook/active`, (req, res) => {
+  app.get(`/${SHELLY_ACTIONS_KEY}/circulation-webhook/active`, (req, res) => {
     Circulation.updateStatus('active')
     res.sendStatus(200)
   })
 
-  app.get(`${SHELLY_ACTIONS_KEY}/circulation-webhook/inactive`, (req, res) => {
+  app.get(`/${SHELLY_ACTIONS_KEY}/circulation-webhook/inactive`, (req, res) => {
     Circulation.updateStatus('inactive')
     res.sendStatus(200)
   })
