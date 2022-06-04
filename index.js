@@ -38,8 +38,12 @@ async function main() {
   const app = express()
 
   app.get('/', w(async (req, res) => {
-    const status = await getStatus()
-    res.send(getFormattedStatus(status))
+    const {orp, ph, temperature, circulation} = await getStatus()
+    res.send(`Circulation : ${circulation ? 'active' : 'inactive'}
+Température : ${temperature.toFixed(1)}°C
+pH : ${ph.toFixed(2)}
+ORP : ${orp.toFixed(2)} mV
+`)
   }))
 
   app.listen(process.env.PORT || 5000)
