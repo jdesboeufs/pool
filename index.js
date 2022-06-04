@@ -27,6 +27,30 @@ function w(handler) {
   }
 }
 
+function getPHStatus(ph) {
+  if (ph >= 7 && ph <= 7.4) {
+    return 'green'
+  }
+
+  if ((ph > 7.4 && ph < 7.6) || (ph < 7 && ph > 6.9)) {
+    return 'orange'
+  }
+
+  return 'red'
+}
+
+function getOrpStatus(orp) {
+  if (orp >= 650 && orp <= 750) {
+    return 'green'
+  }
+
+  if ((orp > 750 && orp < 800) || (orp < 650 && orp > 600)) {
+    return 'orange'
+  }
+
+  return 'red'
+}
+
 async function main() {
   await initBus()
   await printStatus()
@@ -39,11 +63,22 @@ async function main() {
 
   app.get('/', w(async (req, res) => {
     const {orp, ph, temperature, circulation} = await getStatus()
-    res.send(`Circulation : ${circulation ? 'active' : 'inactive'}<br />
-Température : ${temperature.toFixed(1)}°C<br />
-pH : ${ph.toFixed(2)}<br />
-ORP : ${orp.toFixed(2)} mV
-`)
+    res.send(`<html>
+<head>
+  <title>Piscine</title>
+  <style>
+    .red {color: red;}
+    .orange {color: orange;}
+    .green {color: green;}
+  </style>
+</head>
+<body>
+  Circulation : ${circulation ? 'active' : 'inactive'}<br />
+  Température : ${temperature.toFixed(1)}°C<br />
+  pH : <span class="${getPHStatus(ph)}">${ph.toFixed(2)}</span><br />
+  ORP : <span class="${getOrpStatus(orp)}">${orp.toFixed(2)} mV</span>
+</body>
+</html>`)
   }))
 
   app.listen(process.env.PORT || 5000)
