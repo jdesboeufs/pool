@@ -70,6 +70,7 @@ async function main() {
 <head>
   <title>Piscine</title>
   <style>
+    body {padding: 1em; font-family: Helvetica;}
     .red {color: red;}
     .orange {color: orange;}
     .green {color: green;}
