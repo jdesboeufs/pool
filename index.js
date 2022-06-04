@@ -39,9 +39,9 @@ async function main() {
 
   app.get('/', w(async (req, res) => {
     const {orp, ph, temperature, circulation} = await getStatus()
-    res.send(`Circulation : ${circulation ? 'active' : 'inactive'}
-Température : ${temperature.toFixed(1)}°C
-pH : ${ph.toFixed(2)}
+    res.send(`Circulation : ${circulation ? 'active' : 'inactive'}<br />
+Température : ${temperature.toFixed(1)}°C<br />
+pH : ${ph.toFixed(2)}<br />
 ORP : ${orp.toFixed(2)} mV
 `)
   }))
