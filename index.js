@@ -41,6 +41,8 @@ async function main() {
     const status = await getStatus()
     res.send(getFormattedStatus(status))
   }))
+
+  app.listen(process.env.PORT || 5000)
 }
 
 main().catch(error => {
