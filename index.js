@@ -8,6 +8,9 @@ import express from 'express'
 
 import {initBus} from './lib/devices.js'
 import {getStatus} from './lib/probe.js'
+import Circulation from './lib/circulation.js'
+
+const {SHELLY_ACTIONS_KEY} = process.env
 
 async function printStatus() {
   const status = await getStatus()
@@ -17,7 +20,7 @@ async function printStatus() {
 function getFormattedStatus(status) {
   const {temperature, circulation, ph, orp} = status
   const date = format(new Date(), 'dd/MM/yyyy HH:mm', {timeZone: 'Europe/Paris'})
-  return `${date} | Circulation ${circulation ? 'active' : 'inactive'} | Température : ${temperature.toFixed(1)}°C | pH : ${ph.toFixed(2)} | ORP : ${orp.toFixed(2)} mV`
+  return `${date} | Circulation ${circulation} | Température : ${temperature.toFixed(1)}°C | pH : ${ph.toFixed(2)} | ORP : ${orp.toFixed(2)} mV`
 }
 
 function w(handler) {
@@ -56,6 +59,7 @@ function getOrpStatus(orp) {
 
 async function main() {
   await initBus()
+  await Circulation.init()
   await printStatus()
 
   setInterval(async () => {
@@ -63,6 +67,16 @@ async function main() {
   }, 5 * 60 * 1000)
 
   const app = express()
+
+  app.get(`${SHELLY_ACTIONS_KEY}/circulation-webhook/active`, (req, res) => {
+    Circulation.updateStatus('active')
+    res.sendStatus(200)
+  })
+
+  app.get(`${SHELLY_ACTIONS_KEY}/circulation-webhook/inactive`, (req, res) => {
+    Circulation.updateStatus('inactive')
+    res.sendStatus(200)
+  })
 
   app.get('/', w(async (req, res) => {
     const {orp, ph, temperature, circulation} = await getStatus()
@@ -77,7 +91,7 @@ async function main() {
   </style>
 </head>
 <body>
-  Circulation : ${circulation ? 'active' : 'inactive'}<br />
+  Circulation : ${circulation}<br />
   Température : ${temperature.toFixed(1)}°C<br />
   pH : <span class="${getPHStatus(ph)}">${ph.toFixed(2)}</span><br />
   ORP : <span class="${getOrpStatus(orp)}">${orp.toFixed(2)} mV</span>
