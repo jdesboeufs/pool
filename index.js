@@ -1,5 +1,8 @@
 #!/usr/bin/env node
+/* eslint import/no-unassigned-import: off */
 import process from 'node:process'
+
+import 'dotenv/config.js'
 import {format} from 'date-fns-tz'
 import express from 'express'
 
