@@ -66,7 +66,7 @@ function getTemperatureStatus(temp) {
     return 'red'
   }
 
-  if (temps < 12 && temp > 32) {
+  if (temp < 12 || temp > 32) {
     return 'orange'
   }
 
