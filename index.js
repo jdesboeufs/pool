@@ -71,7 +71,7 @@ async function main() {
 
   setInterval(async () => {
     await printStatus()
-  }, 5 * 60 * 1000)
+  }, 60 * 1000) // Every minute
 
   const app = express()
 
