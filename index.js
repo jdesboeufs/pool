@@ -14,7 +14,7 @@ import Temperature from './lib/temperature.js'
 import Orp from './lib/orp.js'
 import Ph from './lib/ph.js'
 
-const {SHELLY_ACTIONS_KEY} = process.env
+const {SHELLY_ACTIONS_KEY, FROST_PROTECTION_MODE} = process.env
 
 function printStatus() {
   const status = getStatus()
@@ -73,6 +73,23 @@ function getTemperatureStatus(temp) {
   return 'green'
 }
 
+let defrost = false
+
+async function frostProtectionLoop() {
+  const {circulation, temperature} = await getStatus()
+  if (temperature < 4 && circulation === 'inactive') {
+    await Circulation.start()
+    console.log('   --- Hors-gel : circulation lancée ---')
+    defrost = true
+  } else if (defrost && temperature > 6 && circulation === 'active') {
+    await Circulation.stop()
+    console.log('   --- Hors-gel : circulation arrêtée ---')
+    defrost = false
+  } else if (defrost && circulation === 'inactive') {
+    defrost = false
+  }
+}
+
 async function main() {
   await initBus()
   await Circulation.init()
@@ -83,6 +100,10 @@ async function main() {
 
   setInterval(async () => {
     await printStatus()
+
+    if (FROST_PROTECTION_MODE === '1') {
+      await frostProtectionLoop()
+    }
   }, 60 * 1000) // Every minute
 
   const app = express()
