@@ -61,6 +61,18 @@ function getOrpStatus(orp) {
   return 'red'
 }
 
+function getTemperatureStatus(temp) {
+  if (temp < 4 || temp > 34) {
+    return 'red'
+  }
+
+  if (temps < 12 && temp > 32) {
+    return 'orange'
+  }
+
+  return 'green'
+}
+
 async function main() {
   await initBus()
   await Circulation.init()
@@ -101,7 +113,7 @@ async function main() {
 </head>
 <body>
   Circulation : ${circulation}<br />
-  Température : ${temperature.toFixed(1)}°C<br />
+  Température : <span class="${getTemperatureStatus(temperature)}">${temperature.toFixed(1)}°C</span><br />
   pH : <span class="${getPHStatus(ph)}">${ph.toFixed(2)}</span><br />
   ORP : <span class="${getOrpStatus(orp)}">${orp.toFixed(2)} mV</span>
 </body>
