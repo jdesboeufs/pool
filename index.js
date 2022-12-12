@@ -73,20 +73,21 @@ function getTemperatureStatus(temp) {
   return 'green'
 }
 
-let defrost = false
+let defrostSince = null
+const MINIMUM_DEFROST_DURATION = 5 * 60 * 1000
 
 async function frostProtectionLoop() {
   const {circulation, temperature} = await getStatus()
   if (temperature < 4 && circulation === 'inactive') {
     await Circulation.start()
     console.log('   --- Hors-gel : circulation lancée ---')
-    defrost = true
-  } else if (defrost && temperature > 6 && circulation === 'active') {
+    defrostSince = new Date()
+  } else if (defrostSince && (new Date() - defrostSince > MINIMUM_DEFROST_DURATION) && temperature > 6 && circulation === 'active') {
     await Circulation.stop()
     console.log('   --- Hors-gel : circulation arrêtée ---')
-    defrost = false
-  } else if (defrost && circulation === 'inactive') {
-    defrost = false
+    defrostSince = null
+  } else if (defrostSince && circulation === 'inactive') {
+    defrostSince = null
   }
 }
 
