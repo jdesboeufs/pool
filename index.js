@@ -14,7 +14,7 @@ import Temperature from './lib/temperature.js'
 import Orp from './lib/orp.js'
 import Ph from './lib/ph.js'
 
-const {SHELLY_ACTIONS_KEY, FROST_PROTECTION_MODE} = process.env
+const {SHELLY_ACTIONS_KEY, FROST_PROTECTION_MODE, DISABLE_ORP, DISABLE_PH} = process.env
 
 function printStatus() {
   const status = getStatus()
@@ -24,7 +24,7 @@ function printStatus() {
 function getFormattedStatus(status) {
   const {temperature, circulation, ph, orp} = status
   const date = format(new Date(), 'dd/MM/yyyy HH:mm', {timeZone: 'Europe/Paris'})
-  return `${date} | Circulation ${circulation} | Température : ${temperature.toFixed(1)}°C | pH : ${ph.toFixed(2)} | ORP : ${orp.toFixed(2)} mV`
+  return `${date} | Circulation ${circulation} | Température : ${temperature.toFixed(1)}°C | pH : ${ph ? ph.toFixed(2) : 'N/A'} | ORP : ${orp ? orp.toFixed(2) : 'N/A'} mV`
 }
 
 function w(handler) {
@@ -38,6 +38,10 @@ function w(handler) {
 }
 
 function getPHStatus(ph) {
+  if (!ph) {
+    return ''
+  }
+
   if (ph >= 7 && ph <= 7.4) {
     return 'green'
   }
@@ -50,6 +54,10 @@ function getPHStatus(ph) {
 }
 
 function getOrpStatus(orp) {
+  if (!orp) {
+    return ''
+  }
+
   if (orp >= 650 && orp <= 750) {
     return 'green'
   }
@@ -62,6 +70,10 @@ function getOrpStatus(orp) {
 }
 
 function getTemperatureStatus(temp) {
+  if (!temp) {
+    return ''
+  }
+
   if (temp < 4 || temp > 34) {
     return 'red'
   }
@@ -95,8 +107,15 @@ async function main() {
   await initBus()
   await Circulation.init()
   await Temperature.init()
-  await Ph.init()
-  await Orp.init()
+
+  if (DISABLE_ORP !== '1') {
+    await Orp.init()
+  }
+
+  if (DISABLE_PH !== '1') {
+    await Ph.init()
+  }
+
   await printStatus()
 
   setInterval(async () => {
@@ -136,8 +155,8 @@ async function main() {
 <body>
   Circulation : ${circulation}<br />
   Température : <span class="${getTemperatureStatus(temperature)}">${temperature.toFixed(1)}°C</span><br />
-  pH : <span class="${getPHStatus(ph)}">${ph.toFixed(2)}</span><br />
-  ORP : <span class="${getOrpStatus(orp)}">${orp.toFixed(2)} mV</span>
+  pH : <span class="${getPHStatus(ph)}">${ph ? ph.toFixed(2) : 'N/A'}</span><br />
+  ORP : <span class="${getOrpStatus(orp)}">${orp ? orp.toFixed(2) : 'N/A'} mV</span>
 </body>
 </html>`)
   }))
